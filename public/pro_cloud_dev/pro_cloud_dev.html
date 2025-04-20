@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../static/css/styles.css">
+  <title>Solo Cloud Developer</title>
+</head>
+<body>
+
+  <header>
+    <div class="header-icon"><img src="../img/scd_icon_128x128_black.png"></div>
+    <div><h1 class="center-content">Solo Cloud Developer</h1><p class="center-content">Learning Google Cloud Platform and Enterprise-grade Solutions by studying, doing and documenting.</p></div>
+    <button class="menu-toggle" onclick="document.querySelector('.nav').classList.toggle('active')">☰</button>
+    <nav class="nav">
+      <a href="#">Home</a>
+      <a href="../about.html">About</a>
+      <!-- <a href="#">Blog</a> -->
+    </nav>
+  </header>
+
+  <main>
+    
+    <div class="row">
+      <div class="col-2"></div>
+      <div class="col-8">
+
+<h2 id="study-notes-for-gcp-professional-cloud-developer">Study notes for GCP Professional Cloud Developer</h2>
+
+<p><a href="https://services.google.com/fh/files/misc/professional_cloud_developer_exam_guide_english.pdf">Official Exam Guide</a> effective after Mar 12, 2025</p>
+<p>This version includes Google’s AI tools (Gemini Code Assist and Cloud Assist),
+and includes a new objective, 4.3, that represents troubleshooting and
+observability tasks.</p>
+<hr>
+<p>Certification exam guide (effective March 12, 2025)</p>
+<p>A Professional Cloud Developer builds and deploys scalable, secure, and highly available
+applications by using Google-recommended tools and best practices. This individual has
+experience with cloud-native applications, Google Cloud APIs, developer and AI tools,
+managed services, orchestration tools, serverless platforms, containerized applications, test
+and deployment strategies, problem determination and resolution, and datastores. This
+individual also has proficiency with at least one general-purpose programming language and
+can instrument their code to produce metrics, logs, and traces.</p>
+<h2 id="section-1-designing-highly-scalable-available-and-reliable-cloud-native-applications-36-of-the-exam">Section 1: Designing highly scalable, available, and reliable cloud-native applications (~36% of the exam)</h2>
+<hr>
+<h3 id="11-designing-high-performing-applications-and-apis-considerations-include"><strong>1.1 Designing high-performing applications and APIs. Considerations include:</strong></h3>
+<ul>
+<li>
+<p>Choosing the appropriate platform based on the use case and requirements
+(e.g., Compute Engine, GKE, Cloud Run)</p>
+</li>
+<li>
+<p>Building, refactoring, and deploying application containers to Cloud Run and
+GKE</p>
+</li>
+<li>
+<p>Understanding how Google Cloud services are geographically distributed (e.g.,
+latency, regional services, zonal services)</p>
+</li>
+<li>
+<p>Configuring load balancers and applications for session affinity and performant
+content delivery</p>
+<ul>
+<li><a href="https://cloud.google.com/load-balancing/docs/backend-service#session_affinity">Session Affinity</a>
+<ul>
+<li>
+<blockquote>
+<p>Session affinity lets you control how the load balancer selects backends for new connections in a predictable way as long as the number of healthy backends remains constant.</p>
+</blockquote>
+</li>
+<li>
+<p>Useful for stateful applications that require the same backend for the same user.</p>
+</li>
+<li>
+<p>Best-effort basis (based on):</p>
+<ul>
+<li>backend health</li>
+<li>adding/removing backends</li>
+<li>weights</li>
+</ul>
+</li>
+<li>
+<p>Best used when large distibution of unique connections</p>
+</li>
+<li>
+<p>By default, GCP LBs determine BE based on 5 parameters</p>
+</li>
+<li>
+<p>Packet's source IP</p>
+</li>
+<li>
+<p>Packet's source port (if in packet header)</p>
+</li>
+<li>
+<p>Packet's desitnation IP</p>
+</li>
+<li>
+<p>Packet's destination port (if in packet header)</p>
+</li>
+<li>
+<p>Packet's protocol</p>
+</li>
+<li>
+<p><strong>Types of affinity</strong></p>
+<ul>
+<li>Client IP, no destination affinity
+<ul>
+<li>single tuple hash</li>
+<li>available only for internal passthrough Network LBs</li>
+</ul>
+</li>
+<li>Client IP
+<ul>
+<li>two tuple hash created from <strong>source</strong> IP and <strong>destination</strong> IP</li>
+<li>Available to all GCP LB with BEs</li>
+</ul>
+</li>
+<li>Generated Cookie
+<ul>
+<li>
+<blockquote>
+<p>the load balancer includes an HTTP cookie in the Set-Cookie header in response to the initial HTTP request.</p>
+</blockquote>
+</li>
+<li>name of cookie depends on type of LB</li>
+<li>
+<blockquote>
+<p>he load balancer directs those requests to the same backend instance or endpoint, as long as the session affinity cookie remains valid</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/load-balancing/docs/backend-service#header_field_affinity">Header field</a>
+<ul>
+<li>
+<blockquote>
+<p>With header field affinity, requests are routed to the backends based on the value of the HTTP header in the consistentHash.httpHeaderName field of the backend service.</p>
+</blockquote>
+</li>
+<li>See documentation for types of LBs available</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/load-balancing/docs/backend-service#http_cookie_affinity">HTTP Cookie affinity</a>
+<ul>
+<li>
+<blockquote>
+<p>When you use HTTP cookie-based affinity, the load balancer includes an HTTP cookie in the Set-Cookie header in response to the initial HTTP request. You specify the name, path, and time to live (TTL) for the cookie</p>
+</blockquote>
+</li>
+<li>Available LBs:
+<ul>
+<li>All application LBs</li>
+<li>Cloud Service Mesh</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/load-balancing/docs/backend-service#stateful-session-affinity">Stateful cookie-based affinity</a>
+<ul>
+<li>
+<blockquote>
+<p>When you use stateful cookie-based affinity, the load balancer includes an HTTP cookie in the Set-Cookie header in response to the initial HTTP request. You specify the name, path, and time to live (TTL) for the cookie.</p>
+</blockquote>
+</li>
+<li>Available LBs:
+<ul>
+<li>All application LBs, <strong>except</strong> classic Application LB</li>
+<li>As long as cookie is valid and BE is available the LB will direct to specific BE.</li>
+</ul>
+</li>
+<li><strong>Differences</strong> to other session affinity LBs:
+<ul>
+<li>
+<blockquote>
+<p>Stateful cookie-based affinity has no specific requirements for the balancing mode or for the load balancing locality policy (localityLbPolicy)</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>Stateful cookie-based affinity is not affected when autoscaling adds a new instance to a managed instance group</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>Stateful cookie-based affinity is not affected when autoscaling removes an instance from a managed instance group unless the selected instance is removed</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>Stateful cookie-based affinity is not affected when autohealing removes an instance from a managed instance group unless the selected instance is removed</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><strong>Zero TTL Cookie Affinity</strong>
+<ul>
+<li>LB does not assign an <code>Expire</code> attribute</li>
+<li>Different browsers treat Zero TTL differently</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Implementing caching solutions (e.g., Memorystore)</p>
+<ul>
+<li><a href="https://cloud.google.com/memorystore/docs/valkey/product-overview">Valkey</a></li>
+<li><a href="https://cloud.google.com/memorystore/docs/cluster/memorystore-for-redis-cluster-overview">Redis Cluster</a></li>
+<li><a href="https://cloud.google.com/memorystore/docs/redis/memorystore-for-redis-overview">Redis</a>
+<ul>
+<li>secured via private IP address, same authorized VPC, IAM roles</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/memorystore/docs/memcached/memcached-overview">Memcached</a>
+<ul>
+<li>binary and ASCII protocol compliant</li>
+<li>authorized VPC defined during setup and cannot be altered after deployment</li>
+<li>auto discovery of nodes programmatically</li>
+</ul>
+</li>
+<li>
+<blockquote>
+<p>Memorystore for Valkey and Redis Cluster scale without downtime to support up to 250 nodes, terabytes of keyspace, and 60x more throughput than Memorystore for Redis with microsecond latencies</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>Memorystore for Valkey and Redis Cluster have zero-downtime scaling, automatically distributed replicas across availability zones, and automated failover. Memorystore for Redis Cluster also offers a 99.99% SLA</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>Session management, frequently accessed queries, scripts, and pages are common examples of caching</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Creating and deploying APIs (e.g., HTTP REST, gRPC [Google Remote Procedure Call])</strong></p>
+<ul>
+<li><a href="https://cloud.google.com/blog/products/api-management/bridge-the-gap-between-grpc-and-rest-http-apis">Bridge The Gap Between gRPC And REST HTTP APIs</a>
+<ul>
+<li>efficient serialization</li>
+<li>low latency</li>
+<li>strong typed messages</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/api-gateway/docs/grpc-overview">gRPC Overview</a>
+<ul>
+<li>
+<blockquote>
+<p>In gRPC, a client application can directly call methods on a server application on a different machine as if it was a local object</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Using application rate limiting, authentication, and observability (e.g., Apigee, Cloud API Gateway)</strong></p>
+<ul>
+<li><a href="https://cloud.google.com/blog/products/application-modernization/choosing-between-apigee-api-gateway-and-cloud-endpoints">Choosing Between Apigee API, Cloud API Gateway and Cloud Endpoints</a></li>
+<li><a href="https://cloud.google.com/apigee">Apigee</a>
+<ul>
+<li>Enterprise grade</li>
+<li>Any environment, use case or scale</li>
+<li>High API volumes</li>
+<li>APIs exposed to 3rd parties</li>
+<li>High reliability</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/api-gateway/docs">Cloud API Gateway </a>
+<ul>
+<li>Fully managed service</li>
+<li>Ideal for cloud native apps using GCP services</li>
+<li>Inexpesive to get started.</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/endpoints/docs">Cloud Endpoints</a>
+<ul>
+<li>Requires users to manage every detail of API operations.</li>
+<li>Configure, deploy and manage <a href="https://cloud.google.com/endpoints/docs/openapi/glossary#extensible_service_proxy_v2">ESPv2 Proxy</a></li>
+<li>Most common use case is with gRPC services.</li>
+<li>3 Options depending on where API is hosted:
+<ul>
+<li>OpenAPI</li>
+<li>gRPC</li>
+<li>App Engine standard enviornment</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Integrating applications using asynchronous or event-driven approaches (e.g., Eventarc, Pub/Sub)</strong></p>
+<ul>
+<li>ChatGPT response for <a class='foam-note-link' title='Async Event Driven Approaches' href='/dendron_notes/pro_cloud_dev.asynch_event_driven.md' data-href='/dendron_notes/pro_cloud_dev.asynch_event_driven.md'>Async Event Driven Approaches</a> approaches
+<ul>
+<li><a href="https://cloud.google.com/eventarc/docs">Eventarc Documentation</a>
+<ul>
+<li>Two types:
+<ul>
+<li><a href="https://cloud.google.com/eventarc/standard/docs/overview">Eventarc Standard</a>
+<ul>
+<li>Format
+<ul>
+<li>HTTP requests in binary content mode</li>
+<li>Payload encoding
+<ul>
+<li><code>application/json</code></li>
+<li><code>application/protobuf</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/eventarc/advanced/docs/overview">Eventarc Advanced</a>
+<ul>
+<li><a href="https://cloud.google.com/eventarc/advanced/docs/overview#event-retry-policy">Retry Policy</a>
+<ul>
+<li>Default 24 hours with exponential backoff</li>
+</ul>
+</li>
+<li>Format
+<ul>
+<li>HTTP requests in binary content mode</li>
+<li>Workflow destinations converts event to JSON object</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/eventarc/docs#features-comparison-table">Features Comparison Chart</a></li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/eventarc/advanced/docs/overview#events">Event Definition</a>:
+<ul>
+<li>
+<blockquote>
+<p>An event is a data record that expresses an occurrence and its context, and indicates a change in a resource or environment. An event is a discrete unit of communication, independent of other events. For example, an event might indicate a change to data in a database, a file added to a storage system, or a scheduled job.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>Observability
+<ul>
+<li>detailed logs available in Cloud Auditing Logs</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Optimizing for cost and resource usage</strong></p>
+<ul>
+<li><a href="https://cloud.google.com/architecture/framework/cost-optimization">Well Architected Framework: Cost Optimization Pillar</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Understanding data replication to support zonal and regional failover models</strong></p>
+<ul>
+<li>References - <a href="https://cloud.google.com/architecture/disaster-recovery">Distaster Recovery</a></li>
+<li>Zonal Resources hosted in a single zone
+<ul>
+<li>Zonal resources:
+<ul>
+<li>Compute Engine (virtual machines)</li>
+<li>Persistent disks</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Regional Resources hosted in multi-zones in the same region</li>
+<li>Multi-regional hosted across multiple regions.</li>
+</ul>
+</li>
+<li>
+<p><strong>Using traffic splitting strategies (e.g., gradual rollouts, rollbacks, A/B testing) on a new service on Cloud Run or GKE</strong></p>
+</li>
+<li>
+<p><strong>Orchestrating application services with Workflows, Eventarc, Cloud Tasks, and Cloud Scheduler</strong></p>
+<ul>
+<li>Reference Dendron page: <a class='foam-note-link' title='Orchestrating_app_services' href='/dendron_notes/pro_cloud_dev.orchestrating_app_services.md' data-href='/dendron_notes/pro_cloud_dev.orchestrating_app_services.md'>Orchestrating_app_services</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="12-designing-secure-applications-considerations-include"><strong>1.2 Designing secure applications. Considerations include:</strong></h3>
+<ul>
+<li>
+<p><strong>Implementing data retention and organization policies (e.g., Cloud Storage Object Lifecycle Management, Cloud Storage use and lock retention policies)</strong></p>
+<ul>
+<li><a href="https://cloud.google.com/storage/docs/lifecycle">Object Lifecycle Management</a>
+<ul>
+<li>Lifecycle config
+<ul>
+<li>a rule contains one action and multiple conditions</li>
+<li>if multiple rules contain same action, action is applied if any of the conditions are met.</li>
+<li>if multiple rules have conditions met at same time, then the order is:
+<ul>
+<li><code>delete</code> takes precedence over <code>SetStorageClass</code> action</li>
+<li>The lowest price of &quot;at rest storage&quot; pricing is used.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Lifecycle Actions
+<ul>
+<li>rule can contain only a single action</li>
+<li><code>Delete</code>
+<ul>
+<li>default is soft delete which GCP will retain for 7 days</li>
+</ul>
+</li>
+<li><code>SetStorageClass</code></li>
+<li><code>AbortIncompleteMultipartUpload</code></li>
+</ul>
+</li>
+<li><a href="https://cloud.google.com/storage/docs/lifecycle#conditions">Lifecycle Conditions</a>
+<ul>
+<li>All conditions are optional but at least one condition is required.</li>
+</ul>
+</li>
+<li>
+<blockquote>
+<p>The object's time spent set at the original storage class counts towards any minimum storage duration that applies for the new storage class.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Using security mechanisms that identify vulnerabilities and protect services and
+resources (e.g., Identity-Aware Proxy [IAP], Web Security Scanner)</p>
+</li>
+<li>
+<p>Responding to and resolving vulnerabilities, including those identified by Artifact
+Analysis and Security Command Center</p>
+</li>
+<li>
+<p>Storing, accessing, and rotating application secrets, credentials, and encryption
+keys (e.g., Secret Manager, Cloud Key Management Service, Workload Identity
+Federation)</p>
+</li>
+<li>
+<p>Authenticating to Google Cloud services (e.g., Application Default Credentials,
+JSON Web Token [JWT], OAuth 2.0, Cloud SQL Auth Proxy, AlloyDB Auth Proxy)</p>
+</li>
+<li>
+<p>Managing and authenticating end-user accounts (e.g., Identity Platform)</p>
+</li>
+<li>
+<p>Securing cloud resources using Identity and Access Management (IAM) roles for
+service accounts</p>
+</li>
+<li>
+<p>Securing service-to-service communications (e.g., Cloud Service Mesh,
+Kubernetes Network Policies)</p>
+</li>
+<li>
+<p>Running services with least privileged access</p>
+</li>
+<li>
+<p>Securing application artifacts using Binary Authorization</p>
+</li>
+</ul>
+<h3 id="13-storing-and-accessing-data-considerations-include"><strong>1.3 Storing and accessing data. Considerations include:</strong></h3>
+<ul>
+<li><strong>Selecting the appropriate storage system based on the volume of data and
+performance requirements</strong>
+- Cloud Storage
+<ul>
+<li>inifinite scale</li>
+<li>max <strong>object</strong> size is 5 TB</li>
+</ul>
+</li>
+<li>Designing appropriate schemas for structured databases (e.g., AlloyDB,
+Spanner) and unstructured databases (e.g., Bigtable, Datastore)</li>
+<li>Understanding the implications of eventual and strongly consistent replication of
+AlloyDB, Bigtable, Cloud SQL, Spanner, and Cloud Storage</li>
+<li>Creating signed URLs to grant access to Cloud Storage objects</li>
+<li>Writing data to BigQuery for analytics and AI/ML workloads</li>
+</ul>
+<hr>
+<h2 id="section-2-building-and-testing-applications-23-of-the-exam">Section 2: Building and testing applications (~23% of the exam)</h2>
+<h3 id="21-setting-up-your-development-environment-considerations-include"><strong>2.1 Setting up your development environment. Considerations include:</strong></h3>
+<ul>
+<li>Emulating Google Cloud services using the Google Cloud CLI for local
+application development and local unit testing
+- <a href="https://cloud.google.com/sdk/gcloud/reference/beta/emulators">Ref Google Official Doc</a>
+- <code>glcoud beta emulators GROUP</code>
+<ul>
+<li>Possible GROUP:
+<ul>
+<li>bigtable</li>
+<li>datastore</li>
+<li>firestore</li>
+<li>pubsub</li>
+<li>spanner</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>- [Using Emulator](https://cloud.google.com/pubsub/docs/emulator#using_the_emulator)
+    - App must be built using Cloud Client Libraries
+    - **DOES NOT** support `gcloud pubsub` 
+        - What about bigtable, datastore, etc??
+</code></pre>
+<ul>
+<li>Using the Google Cloud console, Cloud SDK, Cloud Code, Gemini Cloud Assist,
+Gemini Code Assist, Cloud Shell, and Cloud Workstations</li>
+</ul>
+<h3 id="22-building-considerations-include"><strong>2.2 Building. Considerations include:</strong></h3>
+<ul>
+<li>Using Cloud Build and Artifact Registry to build and store containers from source
+code</li>
+<li>Configuring provenance in Cloud Build (e.g., Binary Authorization)</li>
+</ul>
+<h3 id="23-testing-considerations-include"><strong>2.3 Testing. Considerations include:</strong></h3>
+<ul>
+<li>Writing unit tests with the help of Gemini Code Assist</li>
+<li>Executing automated integration tests in Cloud Build</li>
+</ul>
+<hr>
+<h2 id="section-3-deploying-applications-20-of-the-exam">Section 3: Deploying applications (~20% of the exam)</h2>
+<h3 id="31-deploying-applications-to-cloud-run-considerations-include"><strong>3.1 Deploying applications to Cloud Run. Considerations include:</strong></h3>
+<ul>
+<li>Deploying applications from source code</li>
+<li>Invoking Cloud Run services using triggers (e.g., Eventarc, Pub/Sub)</li>
+<li>Configuring event receivers (e.g., Eventarc, Pub/Sub)</li>
+<li>Exposing and securing APIs in applications (e.g., Apigee)</li>
+<li>Deploying a new API version in Cloud Endpoints considering backward
+compatibility</li>
+</ul>
+<h3 id="32-deploying-containers-to-gke-considerations-include"><strong>3.2 Deploying containers to GKE. Considerations include:</strong></h3>
+<ul>
+<li>
+<p>Deploying containerized applications</p>
+</li>
+<li>
+<p>Defining resource requirements for container workloads</p>
+</li>
+<li>
+<p>Implementing Kubernetes health checks to increase application availability</p>
+<ul>
+<li>Readiness probe:  Is the application <strong>ready</strong> to receive traffic?  No - don't send traffic</li>
+<li>Liveliness probe:  Is the pod responding?  No - restart the pod</li>
+</ul>
+</li>
+<li>
+<p>Configuring the Horizontal Pod Autoscaler for cost optimization</p>
+<ul>
+<li>1 New instance at a time, no reduction in capacity:
+<ul>
+<li>maxSurge: 1 | maxUnavailable: 0</li>
+</ul>
+</li>
+<li>Minimum costs, 1 at a time (no increase in number of instances)
+<ul>
+<li>maxSurge: 0 | maxUnavailable: 1</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Misc Notes:</p>
+<ul>
+<li>Default deployment strategy: Rolling update</li>
+<li>Rolling updates:
+<ul>
+<li>Update pods in batches</li>
+</ul>
+</li>
+<li>Recreate:
+<ul>
+<li>Kill all existing pods before new ones are created</li>
+</ul>
+</li>
+<li>Network Policy
+<ul>
+<li>Kubernetes network policies do not configure authentication or authorization, only which pods can communicate with other pods within same namespace.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="section-4-integrating-applications-with-google-cloud-services-21-of-the-exam">Section 4: Integrating applications with Google Cloud services (~21% of the exam)</h2>
+<h3 id="41-integrating-applications-with-data-and-storage-services-considerations-include"><strong>4.1 Integrating applications with data and storage services. Considerations include:</strong></h3>
+<ul>
+<li>Managing connections to various Google Cloud datastores (e.g., Cloud SQL,
+Firestore, Cloud Storage)</li>
+<li>Reading and writing data to and from various Google Cloud datastores</li>
+<li>Writing applications that publish and consume data using Pub/Sub</li>
+</ul>
+<h3 id="42-consuming-google-cloud-apis-considerations-include"><strong>4.2 Consuming Google Cloud APIs. Considerations include:</strong></h3>
+<ul>
+<li>Enabling Google Cloud services</li>
+<li>Making API calls by using supported options (e.g., Cloud Client Libraries, REST
+API, gRPC, API Explorer) taking into consideration:</li>
+<li>Batching requests</li>
+<li>Restricting return data</li>
+<li>Paginating results</li>
+<li>Caching results</li>
+<li>Handling errors (e.g., exponential backoff)</li>
+<li>Using service accounts to make Cloud API calls</li>
+</ul>
+<h3 id="43-troubleshooting-and-observability-considerations-include"><strong>4.3 Troubleshooting and observability. Considerations include:</strong></h3>
+<ul>
+<li>Instrumenting code to facilitate troubleshooting using metrics, logs, and traces
+in Google Cloud Observability</li>
+<li>Identifying and resolving issues using Google Cloud Observability</li>
+<li>Managing application issues using Error Reporting</li>
+<li>Using trace IDs to correlate trace spans across services</li>
+<li>Using Gemini Cloud Assist
+8</li>
+</ul>
+
+        
+</div>
+<div class="col-2"></div>
+</div>
+
+  
+</main>
+
+</body>
+</html>
